@@ -43,6 +43,9 @@ double sim_length;
 
 double mean_interarrival[NUM_LOCATIONS + 1];
 
+/* miles from location i to the next location on the route */
+double distance_to_next[NUM_LOCATIONS + 1] = {0.0, 1.0, 4.5, 4.5};
+
 int bus_location;
 int bus_at_stop;
 int bus_busy;
@@ -165,7 +168,12 @@ void arrive(int location)
 
 void bus_arrive(void)
 {
-    /* TODO */
+    bus_at_stop = 1;
+    bus_stop_start = sim_time;
+    min_stop_passed = 0;
+    event_schedule(sim_time + min_stop_time, EVENT_MIN_STOP_DONE);
+
+    process_bus_at_stop();
 }
 
 void unload_done(void)
@@ -180,17 +188,39 @@ void load_done(void)
 
 void min_stop_done(void)
 {
-    /* TODO */
+    min_stop_passed = 1;
+    process_bus_at_stop();
 }
 
 void bus_depart(void)
 {
-    /* TODO */
+    /* the first departure at t = 0 has no stop or loop to record */
+    if (sim_time > 0.0)
+        sampst(sim_time - bus_stop_start, SAMPST_STOP(bus_location));
+
+    if (bus_location == CAR_RENTAL)
+    {
+        if (sim_time > 0.0)
+            sampst(sim_time - loop_start, SAMPST_LOOP);
+        loop_start = sim_time;
+    }
+
+    event_schedule(sim_time + distance_to_next[bus_location] / bus_speed * 60.0, EVENT_BUS_ARRIVAL);
+    bus_location = bus_location % NUM_LOCATIONS + 1;
 }
 
 void process_bus_at_stop(void)
 {
-    /* TODO */
+    if (bus_busy)
+        return;
+
+    /* TODO: unload and load */
+
+    if (min_stop_passed)
+    {
+        bus_at_stop = 0;
+        event_schedule(sim_time, EVENT_BUS_DEPARTURE);
+    }
 }
 
 void report(void)
