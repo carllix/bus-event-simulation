@@ -148,7 +148,19 @@ void init_model(void)
 
 void arrive(int location)
 {
-    /* TODO */
+    event_schedule(sim_time + expon(mean_interarrival[location], STREAM_ARRIVAL(location)),
+                   EVENT_ARRIVAL_1 + location - 1);
+
+    transfer[ATTR_ARRIVAL_TIME] = sim_time;
+    transfer[ATTR_ORIGIN] = location;
+    if (location == CAR_RENTAL)
+        transfer[ATTR_DESTINATION] = random_integer(prob_distrib, STREAM_DESTINATION);
+    else
+        transfer[ATTR_DESTINATION] = CAR_RENTAL;
+    list_file(LAST, LIST_QUEUE(location));
+
+    if (bus_at_stop && bus_location == location)
+        process_bus_at_stop();
 }
 
 void bus_arrive(void)
