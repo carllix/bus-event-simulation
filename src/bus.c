@@ -63,6 +63,7 @@ void load_done(void);
 void min_stop_done(void);
 void bus_depart(void);
 void process_bus_at_stop(void);
+int num_on_bus(void);
 void report(void);
 
 int main()
@@ -178,12 +179,18 @@ void bus_arrive(void)
 
 void unload_done(void)
 {
-    /* TODO */
+    list_remove(FIRST, LIST_BUS(bus_location));
+    sampst(sim_time - transfer[ATTR_ARRIVAL_TIME], SAMPST_SYSTEM((int)transfer[ATTR_ORIGIN]));
+    timest(num_on_bus(), TIMEST_BUS);
+
+    bus_busy = 0;
+    process_bus_at_stop();
 }
 
 void load_done(void)
 {
-    /* TODO */
+    bus_busy = 0;
+    process_bus_at_stop();
 }
 
 void min_stop_done(void)
@@ -214,13 +221,35 @@ void process_bus_at_stop(void)
     if (bus_busy)
         return;
 
-    /* TODO: unload and load */
+    if (list_size[LIST_BUS(bus_location)] > 0)
+    {
+        bus_busy = 1;
+        event_schedule(sim_time + uniform(unload_min, unload_max, STREAM_UNLOAD) / 60.0, EVENT_UNLOAD_DONE);
+    }
+    else if (list_size[LIST_QUEUE(bus_location)] > 0 && num_on_bus() < bus_capacity)
+    {
+        list_remove(FIRST, LIST_QUEUE(bus_location));
+        sampst(sim_time - transfer[ATTR_ARRIVAL_TIME], SAMPST_DELAY(bus_location));
+        list_file(LAST, LIST_BUS((int)transfer[ATTR_DESTINATION]));
+        timest(num_on_bus(), TIMEST_BUS);
 
-    if (min_stop_passed)
+        bus_busy = 1;
+        event_schedule(sim_time + uniform(load_min, load_max, STREAM_LOAD) / 60.0, EVENT_LOAD_DONE);
+    }
+    else if (min_stop_passed)
     {
         bus_at_stop = 0;
         event_schedule(sim_time, EVENT_BUS_DEPARTURE);
     }
+}
+
+int num_on_bus(void)
+{
+    int total = 0;
+
+    for (int j = 1; j <= NUM_LOCATIONS; ++j)
+        total += list_size[LIST_BUS(j)];
+    return total;
 }
 
 void report(void)
