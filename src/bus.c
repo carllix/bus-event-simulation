@@ -64,6 +64,7 @@ void min_stop_done(void);
 void bus_depart(void);
 void process_bus_at_stop(void);
 int num_on_bus(void);
+void print_stat(const char *tag, const char *label, double avg, double max, double min, int is_count, int has_min);
 void report(void);
 
 int main()
@@ -252,9 +253,70 @@ int num_on_bus(void)
     return total;
 }
 
+void print_stat(const char *tag, const char *label, double avg, double max, double min, int is_count, int has_min)
+{
+    char max_str[16], min_str[16] = "-";
+
+    snprintf(max_str, sizeof max_str, is_count ? "%.0f" : "%.3f", max);
+    if (has_min)
+        snprintf(min_str, sizeof min_str, "%.3f", min);
+    fprintf(outfile, "%-4s%-38s|%10.3f |%10s |%10s\n", tag, label, avg, max_str, min_str);
+}
+
 void report(void)
 {
-    /* TODO */
+    char label[64];
 
-    fprintf(outfile, "Airport Shuttle Bus Simulation\n");
+    fprintf(outfile, "AIRPORT SHUTTLE BUS SIMULATION\n\n");
+
+    fprintf(outfile, "Input Parameters\n");
+    fprintf(outfile, "----------------\n");
+    fprintf(outfile, "%-42s= %.1f %.1f %.1f per hour\n", "Arrival rates at locations 1, 2, 3", arrival_rate[1], arrival_rate[2], arrival_rate[3]);
+    fprintf(outfile, "%-42s= %.3f %.3f\n", "Destination probabilities from car rental", prob_dest[1], prob_dest[2]);
+    fprintf(outfile, "%-42s= %d people\n", "Bus capacity", bus_capacity);
+    fprintf(outfile, "%-42s= %.1f miles per hour\n", "Bus speed", bus_speed);
+    fprintf(outfile, "%-42s= %.1f to %.1f seconds\n", "Unloading time per person", unload_min, unload_max);
+    fprintf(outfile, "%-42s= %.1f to %.1f seconds\n", "Loading time per person", load_min, load_max);
+    fprintf(outfile, "%-42s= %.1f minutes\n", "Minimum stop time", min_stop_time);
+    fprintf(outfile, "%-42s= %.1f hours\n\n", "Simulation length", sim_length);
+
+    fprintf(outfile, "Simulation Results\n");
+    fprintf(outfile, "------------------\n");
+    fprintf(outfile, "Locations: 1 = Terminal 1, 2 = Terminal 2, 3 = Car rental\n");
+    fprintf(outfile, "All times are in minutes\n\n");
+    fprintf(outfile, "%-42s|%10s |%10s |%10s\n", "", "Average", "Max", "Min");
+
+    for (int i = 1; i <= NUM_LOCATIONS; ++i)
+    {
+        filest(LIST_QUEUE(i));
+        snprintf(label, sizeof label, "Number in queue at location %d", i);
+        print_stat(i == 1 ? "[a]" : "", label, transfer[1], transfer[2], 0.0, 1, 0);
+    }
+
+    for (int i = 1; i <= NUM_LOCATIONS; ++i)
+    {
+        sampst(0.0, -SAMPST_DELAY(i));
+        snprintf(label, sizeof label, "Delay in queue at location %d", i);
+        print_stat(i == 1 ? "[b]" : "", label, transfer[1], transfer[3], 0.0, 0, 0);
+    }
+
+    timest(0.0, -TIMEST_BUS);
+    print_stat("[c]", "Number on the bus", transfer[1], transfer[2], 0.0, 1, 0);
+
+    for (int i = 1; i <= NUM_LOCATIONS; ++i)
+    {
+        sampst(0.0, -SAMPST_STOP(i));
+        snprintf(label, sizeof label, "Bus stop time at location %d", i);
+        print_stat(i == 1 ? "[d]" : "", label, transfer[1], transfer[3], transfer[4], 0, 1);
+    }
+
+    sampst(0.0, -SAMPST_LOOP);
+    print_stat("[e]", "Bus loop time", transfer[1], transfer[3], transfer[4], 0, 1);
+
+    for (int i = 1; i <= NUM_LOCATIONS; ++i)
+    {
+        sampst(0.0, -SAMPST_SYSTEM(i));
+        snprintf(label, sizeof label, "Time in system, arrived at location %d", i);
+        print_stat(i == 1 ? "[f]" : "", label, transfer[1], transfer[3], transfer[4], 0, 1);
+    }
 }
