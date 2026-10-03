@@ -1,0 +1,33 @@
+AIRPORT SHUTTLE BUS SIMULATION
+
+Input Parameters
+----------------
+Arrival rates at locations 1, 2, 3        = 14.0 10.0 24.0 per hour
+Destination probabilities from car rental = 0.583 0.417
+Bus capacity                              = 20 people
+Bus speed                                 = 30.0 miles per hour
+Unloading time per person                 = 16.0 to 24.0 seconds
+Loading time per person                   = 15.0 to 25.0 seconds
+Minimum stop time                         = 5.0 minutes
+Simulation length                         = 80.0 hours
+
+Simulation Results
+------------------
+Locations: 1 = Terminal 1, 2 = Terminal 2, 3 = Car rental
+All times are in minutes
+
+                                          |   Average |       Max |       Min
+[a] Number in queue at location 1         |     7.368 |        27 |         -
+    Number in queue at location 2         |     4.888 |        17 |         -
+    Number in queue at location 3         |     9.321 |        29 |         -
+[b] Delay in queue at location 1          |    31.414 |    91.934 |         -
+    Delay in queue at location 2          |    29.820 |   130.860 |         -
+    Delay in queue at location 3          |    24.130 |    67.485 |         -
+[c] Number on the bus                     |    14.114 |        20 |         -
+[d] Bus stop time at location 1           |     6.698 |    10.171 |     5.000
+    Bus stop time at location 2           |     5.473 |     9.287 |     5.000
+    Bus stop time at location 3           |    11.402 |    13.743 |     5.572
+[e] Bus loop time                         |    43.573 |    48.069 |    35.715
+[f] Time in system, arrived at location 1 |    51.927 |   112.294 |    17.738
+    Time in system, arrived at location 2 |    45.544 |   147.004 |    13.929
+    Time in system, arrived at location 3 |    41.724 |    88.289 |    11.532
