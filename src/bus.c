@@ -65,15 +65,15 @@ void bus_depart(void);
 void process_bus_at_stop(void);
 int num_on_bus(void);
 void print_stat(const char *tag, const char *label, double avg, double max, double min, int is_count, int has_min);
+void write_report(void);
 void report(void);
 
 int main()
 {
     infile = fopen("data/bus.in", "r");
-    outfile = fopen("data/bus.out", "w");
-    if (infile == NULL || outfile == NULL)
+    if (infile == NULL)
     {
-        fprintf(stderr, "Failed to open data/bus.in or data/bus.out\n");
+        fprintf(stderr, "Failed to open data/bus.in\n");
         exit(1);
     }
 
@@ -130,7 +130,6 @@ int main()
     } while (next_event_type != EVENT_END_SIMULATION);
 
     fclose(infile);
-    fclose(outfile);
 
     return 0;
 }
@@ -264,6 +263,28 @@ void print_stat(const char *tag, const char *label, double avg, double max, doub
 }
 
 void report(void)
+{
+    char answer[8];
+
+    outfile = stdout;
+    write_report();
+
+    printf("\nSave output to data/bus.out? (y/n): ");
+    if (fgets(answer, sizeof answer, stdin) == NULL || (answer[0] != 'y' && answer[0] != 'Y'))
+        return;
+
+    outfile = fopen("data/bus.out", "w");
+    if (outfile == NULL)
+    {
+        fprintf(stderr, "Failed to open data/bus.out\n");
+        return;
+    }
+    write_report();
+    fclose(outfile);
+    printf("Output saved to data/bus.out\n");
+}
+
+void write_report(void)
 {
     char label[64];
 

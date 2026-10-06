@@ -122,10 +122,10 @@ Quickest way to get started:
 make run
 ```
 
-The simulation results are saved to `data/bus.out`. To view them:
+The results are shown in the terminal. To also save them to `data/bus.out`, answer `y`:
 
-```bash
-cat data/bus.out
+```
+Save output to data/bus.out? (y/n): y
 ```
 
 > Always run `make` from the project root, since the input and output paths (`data/bus.in` and `data/bus.out`) are relative to that directory.
@@ -283,7 +283,7 @@ flowchart TD
 
 ### End Simulation (event 9)
 
-Calls `report()`, which writes the parameters and statistics (a)–(f) to `data/bus.out`, and the simulation stops.
+Calls `report()`, which prints the parameters and statistics (a)–(f) and saves them to `data/bus.out` if requested, and the simulation stops.
 
 ## Authors
 
