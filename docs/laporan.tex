@@ -1,0 +1,104 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[indonesian]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{lmodern}
+\usepackage{mathptmx}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{tocloft}
+\usepackage{enumitem}
+
+\renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
+\renewcommand{\cftaftertoctitle}{\hspace*{\fill}}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsecfont}{\normalfont}
+\renewcommand{\cftsecpagefont}{\normalfont}
+
+\lstset{
+  language=C,
+  basicstyle=\ttfamily\footnotesize,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue!70!black}\bfseries,
+  commentstyle=\color{green!40!black},
+  stringstyle=\color{red!60!black},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+  {\Large\bfseries LAPORAN TUGAS BESAR 1\par}
+  \vspace{0.3cm}
+  {\Large\bfseries IF4021 PEMODELAN DAN SIMULASI\par}
+  \vspace{1.5cm}
+  {\LARGE Simulasi Antrian Perjalanan Bus\par}
+  \vspace{2cm}
+  \includegraphics[width=5cm]{logo-itb.jpg}\par
+  \vspace{2cm}
+  {\large Disusun oleh:\par}
+  \vspace{0.3cm}
+  {\large
+  \begin{tabular}{l@{\hspace{1.5cm}}l}
+    Ahmad Ibrahim & 13523089 \\[0.2cm]
+    Carlo Angkisan & 13523091
+  \end{tabular}\par}
+  \vfill
+  {\Large\bfseries PROGRAM STUDI TEKNIK INFORMATIKA\par}
+  \vspace{0.2cm}
+  {\Large\bfseries SEKOLAH TEKNIK ELEKTRO DAN INFORMATIKA\par}
+  \vspace{0.2cm}
+  {\Large\bfseries INSTITUT TEKNOLOGI BANDUNG\par}
+  \vspace{0.2cm}
+  {\Large\bfseries 2026\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+
+\section{Deskripsi Masalah}
+
+Permasalahan yang dimodelkan adalah sistem bus \textit{shuttle} yang beroperasi di sebuah bandara dengan tiga lokasi pemberhentian, yaitu Terminal 1, Terminal 2, dan Car Rental. Sistem ini merupakan soal 2.38 pada buku \textit{Simulation Modeling and Analysis} karya Averill M. Law (halaman 179). Bus beroperasi secara berurutan dari Car Rental, kemudian menuju Terminal 1, Terminal 2, dan kembali ke Car Rental. Jarak antar lokasi tersebut secara berturut-turut adalah 4,5 mil, 1 mil, dan 4,5 mil, sehingga dengan kecepatan bus sebesar 30 mil/jam, waktu perjalanan antar lokasi masing-masing adalah 9 menit, 2 menit, dan 9 menit.
+
+Penumpang datang secara acak di setiap lokasi mengikuti proses Poisson dengan laju kedatangan 14 orang/jam di Terminal 1, 10 orang/jam di Terminal 2, dan 24 orang/jam di Car Rental. Penumpang dari Terminal 1 dan Terminal 2 menuju Car Rental, sedangkan penumpang dari Car Rental menuju Terminal 1 dengan probabilitas 0,583 dan Terminal 2 dengan probabilitas 0,417. Bus memiliki kapasitas 20 orang. Waktu untuk menurunkan penumpang mengikuti distribusi U(16, 24) detik, sedangkan waktu untuk menaikkan penumpang mengikuti distribusi U(15, 25) detik. Pada setiap lokasi, bus harus berhenti setidaknya selama 5 menit.
+
+Sistem ini dimodelkan menggunakan \textit{Discrete-Event Simulation} dan disimulasikan selama 80 jam. \textit{Event} dalam simulasi meliputi kedatangan penumpang, kedatangan bus, selesai proses naik dan turun penumpang, tercapainya waktu berhenti minimum, keberangkatan bus, dan akhir simulasi. Hasil simulasi digunakan untuk menganalisis jumlah dan \textit{delay} antrian, jumlah penumpang di dalam bus, waktu berhenti bus, waktu satu \textit{loop}, serta waktu penumpang berada dalam sistem berdasarkan lokasi asal.
+
+\subsection*{Interpretasi Masalah}
+
+Karena terdapat beberapa aspek yang tidak dijelaskan secara rinci dalam soal, simulasi ini menggunakan beberapa asumsi dan interpretasi sebagai berikut:
+
+\begin{itemize}[itemsep=2pt]
+  \item Bus mulai dari Car Rental pada menit ke-0 dan langsung berangkat tanpa berhenti 5 menit terlebih dahulu. Satu \textit{loop} dihitung sejak bus berangkat dari Car Rental hingga bus berangkat lagi dari Car Rental.
+  \item Saat bus berhenti, penumpang yang tujuannya lokasi tersebut diturunkan terlebih dahulu, baru kemudian penumpang di antrian naik. Proses turun dan naik dilakukan satu per satu sesuai urutan kedatangan.
+  \item Penumpang yang datang ketika bus masih berhenti di lokasinya tetap boleh naik selama bus belum penuh.
+  \item Bus baru berangkat apabila sudah berhenti selama 5 menit, tidak ada lagi penumpang yang turun, dan antrian sudah kosong atau bus sudah penuh. Dengan demikian, jika setelah 5 menit masih ada penumpang yang naik, bus tetap menunggu.
+  \item \textit{Delay} di antrian dihitung sejak penumpang datang hingga ia mulai naik. Sejak mulai naik, penumpang tersebut sudah dihitung berada di dalam bus sampai selesai turun.
+  \item Waktu di sistem dihitung sejak penumpang datang hingga ia selesai turun di lokasi tujuannya.
+\end{itemize}
+
+\newpage
+\section{Source Code}
+
+\lstinputlisting{../src/bus.c}
+
+\newpage
+\section{Output Program}
+
+\VerbatimInput[fontsize=\small,frame=single]{../data/bus.out}
+
+\end{document}
