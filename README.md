@@ -180,12 +180,12 @@ flowchart TD
     INIT -->|t = 80 h| END[End simulation]
     ARR -->|next arrival| ARR
     DEP -->|after travel time| BA[Bus arrival]
-    BA -->|after 5 min| MIN[Minimum stop done]
+    BA -->|after 5 min| DEP
     ARR -.->|bus stopped here| P{{process_bus_at_stop}}
     BA -.-> P
     UD[Unload done] -.-> P
     LD[Load done] -.-> P
-    MIN -.-> P
+    DEP -.->|bus still stopped| P
     P --> UD
     P --> LD
     P -->|now| DEP
@@ -232,7 +232,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     S([Bus arrival]) --> A["bus_at_stop = 1<br/>bus_stop_start = sim_time<br/>min_stop_passed = 0"]
-    A --> B["schedule Minimum stop done after 5 min"]
+    A --> B["schedule Bus departure after 5 min"]
     B --> P[[process_bus_at_stop]]
     P --> E([return])
 ```
@@ -257,20 +257,17 @@ flowchart TD
     P --> E([return])
 ```
 
-### Minimum Stop Done (event 7)
+### Bus Departure (event 7)
+
+The event scheduled at bus arrival only marks the minimum stop time as passed. The bus actually departs when `process_bus_at_stop()` schedules this event again with `bus_at_stop = 0`.
 
 ```mermaid
 flowchart TD
-    S([Minimum stop done]) --> A["min_stop_passed = 1"]
-    A --> P[[process_bus_at_stop]]
+    S([Bus departure]) --> BS{bus_at_stop?}
+    BS -->|yes| M["min_stop_passed = 1"]
+    M --> P[[process_bus_at_stop]]
     P --> E([return])
-```
-
-### Bus Departure (event 8)
-
-```mermaid
-flowchart TD
-    S([Bus departure]) --> F{"first departure<br/>at t = 0?"}
+    BS -->|no| F{"first departure<br/>at t = 0?"}
     F -->|yes| LS["loop_start = sim_time"]
     F -->|no| R["record stop time (d) at this location"]
     R --> C{"location = 3?"}
@@ -281,7 +278,7 @@ flowchart TD
     N --> E([return])
 ```
 
-### End Simulation (event 9)
+### End Simulation (event 8)
 
 Calls `report()`, which prints the parameters and statistics (a)–(f) and saves them to `data/bus.out` if requested, and the simulation stops.
 

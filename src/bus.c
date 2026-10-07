@@ -9,9 +9,8 @@
 #define EVENT_BUS_ARRIVAL 4
 #define EVENT_UNLOAD_DONE 5
 #define EVENT_LOAD_DONE 6
-#define EVENT_MIN_STOP_DONE 7
-#define EVENT_BUS_DEPARTURE 8
-#define EVENT_END_SIMULATION 9
+#define EVENT_BUS_DEPARTURE 7
+#define EVENT_END_SIMULATION 8
 
 #define LIST_QUEUE(i) (i)
 #define LIST_BUS(j) (NUM_LOCATIONS + (j))
@@ -60,7 +59,6 @@ void arrive(int location);
 void bus_arrive(void);
 void unload_done(void);
 void load_done(void);
-void min_stop_done(void);
 void bus_depart(void);
 void process_bus_at_stop(void);
 int num_on_bus(void);
@@ -117,9 +115,6 @@ int main()
         case EVENT_LOAD_DONE:
             load_done();
             break;
-        case EVENT_MIN_STOP_DONE:
-            min_stop_done();
-            break;
         case EVENT_BUS_DEPARTURE:
             bus_depart();
             break;
@@ -172,7 +167,7 @@ void bus_arrive(void)
     bus_at_stop = 1;
     bus_stop_start = sim_time;
     min_stop_passed = 0;
-    event_schedule(sim_time + min_stop_time, EVENT_MIN_STOP_DONE);
+    event_schedule(sim_time + min_stop_time, EVENT_BUS_DEPARTURE);
 
     process_bus_at_stop();
 }
@@ -193,14 +188,21 @@ void load_done(void)
     process_bus_at_stop();
 }
 
-void min_stop_done(void)
-{
-    min_stop_passed = 1;
-    process_bus_at_stop();
-}
+// void min_stop_done(void)
+// {
+//     min_stop_passed = 1;
+//     process_bus_at_stop();
+// }
 
 void bus_depart(void)
 {
+    if (bus_at_stop)
+    {
+        min_stop_passed = 1;
+        process_bus_at_stop();
+        return;
+    }
+
     /* the first departure at t = 0 has no stop or loop to record */
     if (sim_time > 0.0)
         sampst(sim_time - bus_stop_start, SAMPST_STOP(bus_location));

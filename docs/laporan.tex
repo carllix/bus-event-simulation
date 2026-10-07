@@ -12,6 +12,7 @@
 \usepackage{xcolor}
 \usepackage{tocloft}
 \usepackage{enumitem}
+\usepackage{parskip}
 
 \renewcommand{\cfttoctitlefont}{\hfill\Large\bfseries}
 \renewcommand{\cftaftertoctitle}{\hspace*{\fill}}
@@ -39,16 +40,17 @@
 
 \begin{titlepage}
   \centering
-  \vspace*{1cm}
   {\Large\bfseries LAPORAN TUGAS BESAR 1\par}
   \vspace{0.3cm}
   {\Large\bfseries IF4021 PEMODELAN DAN SIMULASI\par}
   \vspace{1.5cm}
   {\LARGE Simulasi Antrian Perjalanan Bus\par}
-  \vspace{2cm}
+  \vspace{1.5cm}
   \includegraphics[width=5cm]{logo-itb.jpg}\par
-  \vspace{2cm}
+  \vspace{1.5cm}
   {\large Disusun oleh:\par}
+  \vspace{0.3cm}
+  {\large\bfseries Kelompok 4\par}
   \vspace{0.3cm}
   {\large
   \begin{tabular}{l@{\hspace{1.5cm}}l}
@@ -85,8 +87,7 @@ Karena terdapat beberapa aspek yang tidak dijelaskan secara rinci dalam soal, si
 \begin{itemize}[itemsep=2pt]
   \item Bus mulai dari Car Rental pada menit ke-0 dan langsung berangkat tanpa berhenti 5 menit terlebih dahulu. Satu \textit{loop} dihitung sejak bus berangkat dari Car Rental hingga bus berangkat lagi dari Car Rental.
   \item Saat bus berhenti, penumpang yang tujuannya lokasi tersebut diturunkan terlebih dahulu, baru kemudian penumpang di antrian naik. Proses turun dan naik dilakukan satu per satu sesuai urutan kedatangan.
-  \item Penumpang yang datang ketika bus masih berhenti di lokasinya tetap boleh naik selama bus belum penuh.
-  \item Bus baru berangkat apabila sudah berhenti selama 5 menit, tidak ada lagi penumpang yang turun, dan antrian sudah kosong atau bus sudah penuh. Dengan demikian, jika setelah 5 menit masih ada penumpang yang naik, bus tetap menunggu.
+  \item Penumpang yang datang ketika bus masih berhenti di lokasinya ikut masuk antrian dan tetap boleh naik selama bus belum penuh. Bus baru berangkat apabila sudah berhenti selama 5 menit, tidak ada lagi penumpang yang turun, dan antrian sudah kosong atau bus sudah penuh.
   \item \textit{Delay} di antrian dihitung sejak penumpang datang hingga ia mulai naik. Sejak mulai naik, penumpang tersebut sudah dihitung berada di dalam bus sampai selesai turun.
   \item Waktu di sistem dihitung sejak penumpang datang hingga ia selesai turun di lokasi tujuannya.
 \end{itemize}
